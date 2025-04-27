@@ -14,6 +14,7 @@ For docummentation in Indonesia language, go to the [README-ID.md](./README-ID.m
 - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
+    - [Standalone PostgreSQL Setup for Development](#standalone-postgresql-setup-for-development)
     - [Configuration](#configuration)
     - [Running the Server](#running-the-server)
     - [Environment Variables](#environment-variables)
@@ -176,6 +177,76 @@ npm install
 # or
 yarn install
 ```
+
+### Standalone PostgreSQL Setup for Development
+
+When you're actively developing the application, you often want to run the server code directly on your machine (not in Docker) while still having the database available. This approach:
+
+1. **Pull the latest PostgreSQL image**
+
+    ```bash
+    docker pull postgres:latest
+    ```
+
+    This downloads the official PostgreSQL image from Docker Hub.
+
+2. **Run PostgreSQL container**
+
+    ```bash
+    docker run --name local-postgres \
+      -e POSTGRES_USER=user \
+      -e POSTGRES_PASSWORD=password \
+      -e POSTGRES_DB=db \
+      -p 5432:5432 \
+      -d postgres
+    ```
+
+    **Parameters explained:**
+
+    - `--name local-postgres`: Names your container for easy reference
+    - `-e POSTGRES_USER=user`: Creates a database user named "user"
+    - `-e POSTGRES_PASSWORD=password`: Sets the password
+    - `-e POSTGRES_DB=db`: Creates an initial database named "db"
+    - `-p 5432:5432`: Maps the container's PostgreSQL port to your host machine
+    - `-d`: Runs container in detached mode (background)
+
+3. **Connect your application**
+
+    Update your `.env` file with the connection details:
+
+    ```
+    DATABASE_URL=postgresql://user:password@localhost:5432/db
+    ```
+
+4. **Initialize the database schema**
+
+    After your database is running, run the Drizzle commands to set up your schema:
+
+    ```bash
+    # Generate migrations based on your schema
+    npm run drizzle:generate
+
+    # Apply schema changes directly (for development)
+    npm run drizzle:push
+
+    # Seed the database with initial data
+    npm run drizzle:seed
+    ```
+
+5. **Container management commands**
+
+    ```bash
+    # Stop the PostgreSQL container
+    docker stop local-postgres
+
+    # Start it again later
+    docker start local-postgres
+
+    # Remove container
+    docker rm local-postgres
+    ```
+
+This approach lets you run just the database in Docker while keeping the rest of your development environment native, which can be faster for development iterations.
 
 ### Configuration
 
