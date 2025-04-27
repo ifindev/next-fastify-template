@@ -1,14 +1,12 @@
 import { FastifyInstance } from 'fastify';
 
-import { prisma } from '../config/database';
 import { AuthController } from '../controllers/auth.controller';
-import { UserRepository } from '../repositories/user.repository';
+import { userRepository } from '../repositories';
 import { AuthService } from '../services/auth.service';
 
 export async function authRoutes(fastify: FastifyInstance) {
     // Initialize dependencies
-    const userRepository = new UserRepository(prisma);
-    const authService = new AuthService(prisma);
+    const authService = new AuthService(userRepository);
     const authController = new AuthController(authService);
 
     // Auth routes

@@ -1,23 +1,20 @@
-// import { PrismaClient } from '@prisma/client';
-import { PrismaClient } from '../../generated/prisma';
 import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
-// Create a singleton instance of PrismaClient
-export const prisma = new PrismaClient();
+import { db, pool } from './drizzle.config';
 
-// Extend FastifyInstance to include prisma
+// Extend FastifyInstance to include db
 declare module 'fastify' {
     interface FastifyInstance {
-        prisma: PrismaClient;
+        db: typeof db;
     }
 }
 
-// Export a Fastify plugin to make Prisma available in the request context
-export const prismaPlugin = fp(async (fastify: FastifyInstance) => {
-    fastify.decorate('prisma', prisma);
+// Export a Fastify plugin to make Drizzle available in the request context
+export const drizzlePlugin = fp(async (fastify: FastifyInstance) => {
+    fastify.decorate('db', db);
 
-    fastify.addHook('onClose', async (instance) => {
-        await instance.prisma.$disconnect();
+    fastify.addHook('onClose', async () => {
+        await pool.end();
     });
 });

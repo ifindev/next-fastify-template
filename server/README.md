@@ -34,7 +34,7 @@ The architecture consists of the following layers:
 - Controllers
 - Services
 - Repositories
-- Database (via Prisma ORM)
+- Database (via Drizzle ORM)
 - Middlewares
 - Configuration
 - Utilities
@@ -63,7 +63,7 @@ The architecture consists of the following layers:
 ┌─────────────────────────────────────────────────────────────┐
 │                       CONTROLLERS                           │
 │  ┌─────────────┐  ┌──────────┐  ┌───────────┐  ┌─────────┐  │
-│  │  User       │  │  Auth    │  │  Product  │  │  etc.   │  │
+│  │  User       │  │  Auth    │  │  File     │  │  etc.   │  │
 │  └──────┬──────┘  └────┬─────┘  └─────┬─────┘  └────┬────┘  │
 └─────────┼───────────────┼───────────────┼────────────┼──────┘
           │               │               │            │
@@ -71,7 +71,7 @@ The architecture consists of the following layers:
 ┌─────────────────────────────────────────────────────────────┐
 │                         SERVICES                            │
 │  ┌─────────────┐  ┌──────────┐  ┌───────────┐  ┌─────────┐  │
-│  │  User       │  │  Auth    │  │  Product  │  │  etc.   │  │
+│  │  User       │  │  Auth    │  │  File     │  │  etc.   │  │
 │  └──────┬──────┘  └────┬─────┘  └─────┬─────┘  └────┬────┘  │
 └─────────┼───────────────┼───────────────┼────────────┼──────┘
           │               │               │            │
@@ -79,13 +79,13 @@ The architecture consists of the following layers:
 ┌─────────────────────────────────────────────────────────────┐
 │                      REPOSITORIES                           │
 │  ┌─────────────┐  ┌──────────┐  ┌───────────┐  ┌─────────┐  │
-│  │  User       │  │  Auth    │  │  Product  │  │  etc.   │  │
+│  │  User       │  │  Auth    │  │  File     │  │  etc.   │  │
 │  └──────┬──────┘  └────┬─────┘  └─────┬─────┘  └────┬────┘  │
 └─────────┼───────────────┼───────────────┼────────────┼──────┘
           │               │               │            │
           ▼               ▼               ▼            ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                        PRISMA ORM                           │
+│                        DRIZZLE ORM                          │
 └───────────────────────────────┬─────────────────────────────┘
                                 │
                                 ▼
@@ -116,9 +116,14 @@ This diagram illustrates the flow of a request through our layered architecture,
 **Repository Layer**
 
 - Provides data access abstraction
-- Interacts with Prisma to perform database operations
+- Interacts with Drizzle ORM to perform database operations
 - Isolates database-specific code
 - Makes data persistence testable and replaceable
+
+**Schema Layer**
+
+- Defines database schema using Drizzle's schema definition syntax
+- Contains type definitions for database entities
 
 **Middleware Layer**
 
@@ -146,7 +151,7 @@ This diagram illustrates the flow of a request through our layered architecture,
 4. Controller calls appropriate service method
 5. Service processes the business logic
 6. Service uses repositories for data access
-7. Repository interacts with Prisma for database operations
+7. Repository interacts with Drizzle ORM for database operations
 8. Results flow back through the service to the controller
 9. Controller formats the response and sends it back to the client
 
@@ -208,14 +213,17 @@ yarn install
 3. Set up the database:
 
     ```bash
-    # Generate Prisma client
-    npm run prisma:generate
+    # Generate Drizzle migrations based on your schema
+    npm run drizzle:generate
 
-    # Run migrations
-    npm run prisma:migrate
+    # Push schema changes to the database (development only)
+    npm run drizzle:push
 
-    # (Optional) Seed the database with initial data
-    npm run prisma:seed
+    # Or, apply migrations (recommended for production)
+    npm run drizzle:migrate
+
+    # Seed the database with initial data
+    npm run drizzle:seed
     ```
 
 ### Running the Server

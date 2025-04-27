@@ -1,75 +1,96 @@
 import { MultipartFile } from '@fastify/multipart';
 
-import { FileRepository } from '../repositories/file.repository';
+import { fileRepository } from '../repositories';
+import { IFileRepository } from '../repositories/interfaces';
+import { File } from '../schemas';
 import { FileUploadService } from './file-upload.service';
 
 export class FileService {
-  constructor(
-    private fileRepository: FileRepository,
-    private fileUploadService: FileUploadService
-  ) {}
+    private fileRepository: IFileRepository;
+    private fileUploadService: FileUploadService;
 
-  /**
-   * Upload a file and create a record in the database
-   */
-  async uploadFile(file: MultipartFile, userId: string) {
-    // Upload file to S3
-    const uploadResult = await this.fileUploadService.uploadToS3(file);
-
-    // Create file record in database
-    const fileRecord = await this.fileRepository.createFile({
-      filename: uploadResult.filename,
-      path: uploadResult.url,
-      mimetype: uploadResult.mimetype,
-      size: uploadResult.size,
-      userId,
-    });
-
-    return {
-      ...fileRecord,
-      url: uploadResult.url,
-    };
-  }
-
-  /**
-   * Get file by ID
-   */
-  async getFileById(id: string) {
-    return this.fileRepository.getFileById(id);
-  }
-
-  /**
-   * Get all files for a user
-   */
-  async getFilesByUserId(userId: string) {
-    return this.fileRepository.getFilesByUserId(userId);
-  }
-
-  /**
-   * Get all files
-   */
-  async getAllFiles() {
-    return this.fileRepository.getAllFiles();
-  }
-
-  /**
-   * Delete a file
-   */
-  async deleteFile(id: string) {
-    const file = await this.fileRepository.getFileById(id);
-    if (!file) {
-      throw new Error('File not found');
+    constructor(
+        fileRepo: IFileRepository = fileRepository,
+        fileUploadService: FileUploadService = new FileUploadService(),
+    ) {
+        this.fileRepository = fileRepo;
+        this.fileUploadService = fileUploadService;
     }
 
-    // Extract the key from the path
-    const url = new URL(file.path);
-    const pathParts = url.pathname.split('/');
-    const key = pathParts[pathParts.length - 1];
+    /**
+     * Upload a file and create a record in the database
+     */
+    async uploadFile(file: MultipartFile, userId: string) {
+        // Upload file to S3
+        const uploadResult = await this.fileUploadService.uploadToS3(file);
 
-    // Delete from S3
-    await this.fileUploadService.deleteFromS3(key);
+        // Create file record in database
+        const fileRecord = await this.fileRepository.createFile({
+            filename: uploadResult.filename,
+            path: uploadResult.url,
+            mimetype: uploadResult.mimetype,
+            size: uploadResult.size,
+            userId,
+        });
 
-    // Delete from database
-    return this.fileRepository.deleteFile(id);
-  }
-} 
+        return {
+            ...fileRecord,
+            url: uploadResult.url,
+        };
+    }
+
+    /**
+     * Create a new file record
+     */
+    async createFile(fileData: {
+        filename: string;
+        path: string;
+        mimetype: string;
+        size: number;
+        userId: string;
+    }): Promise<File> {
+        return this.fileRepository.createFile(fileData);
+    }
+
+    /**
+     * Get file by ID
+     */
+    async getFileById(id: string): Promise<File | null> {
+        return this.fileRepository.findById(id);
+    }
+
+    /**
+     * Get files by user ID
+     */
+    async getFilesByUserId(userId: string): Promise<File[]> {
+        return this.fileRepository.findByUserId(userId);
+    }
+
+    /**
+     * Get all files
+     */
+    async getAllFiles(): Promise<File[]> {
+        return this.fileRepository.getAllFiles();
+    }
+
+    /**
+     * Delete file by ID
+     */
+    async deleteFile(id: string): Promise<File> {
+        const file = await this.fileRepository.findById(id);
+        if (!file) {
+            throw new Error('File not found');
+        }
+
+        // Extract the key from the path
+        const url = new URL(file.path);
+        const pathParts = url.pathname.split('/');
+        const key = pathParts[pathParts.length - 1];
+
+        // Delete from S3
+        await this.fileUploadService.deleteFromS3(key);
+
+        // Delete from database
+        return this.fileRepository.deleteFile(id);
+    }
+}

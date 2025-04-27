@@ -34,7 +34,7 @@ Struktur utama proyek ini meliputi:
 - Controllers
 - Services
 - Repositories
-- Database (menggunakan Prisma ORM)
+- Database (menggunakan Drizzle ORM)
 - Middlewares
 - Configuration
 - Utilities
@@ -71,7 +71,7 @@ Diagram berikut menggambarkan alur perjalanan sebuah permintaan (request) dari k
 ┌─────────────────────────────────────────────────────────────┐
 │                       CONTROLLERS                           │
 │  ┌─────────────┐  ┌──────────┐  ┌───────────┐  ┌─────────┐  │
-│  │  User       │  │  Auth    │  │  Product  │  │  etc.   │  │
+│  │  User       │  │  Auth    │  │  File     │  │  etc.   │  │
 │  └──────┬──────┘  └────┬─────┘  └─────┬─────┘  └────┬────┘  │
 └─────────┼───────────────┼───────────────┼────────────┼──────┘
           │               │               │            │
@@ -79,7 +79,7 @@ Diagram berikut menggambarkan alur perjalanan sebuah permintaan (request) dari k
 ┌─────────────────────────────────────────────────────────────┐
 │                         SERVICES                            │
 │  ┌─────────────┐  ┌──────────┐  ┌───────────┐  ┌─────────┐  │
-│  │  User       │  │  Auth    │  │  Product  │  │  etc.   │  │
+│  │  User       │  │  Auth    │  │  File     │  │  etc.   │  │
 │  └──────┬──────┘  └────┬─────┘  └─────┬─────┘  └────┬────┘  │
 └─────────┼───────────────┼───────────────┼────────────┼──────┘
           │               │               │            │
@@ -87,13 +87,13 @@ Diagram berikut menggambarkan alur perjalanan sebuah permintaan (request) dari k
 ┌─────────────────────────────────────────────────────────────┐
 │                      REPOSITORIES                           │
 │  ┌─────────────┐  ┌──────────┐  ┌───────────┐  ┌─────────┐  │
-│  │  User       │  │  Auth    │  │  Product  │  │  etc.   │  │
+│  │  User       │  │  Auth    │  │  File     │  │  etc.   │  │
 │  └──────┬──────┘  └────┬─────┘  └─────┬─────┘  └────┬────┘  │
 └─────────┼───────────────┼───────────────┼────────────┼──────┘
           │               │               │            │
           ▼               ▼               ▼            ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                        PRISMA ORM                           │
+│                        DRIZZLE ORM                          │
 └───────────────────────────────┬─────────────────────────────┘
                                 │
                                 ▼
@@ -125,10 +125,10 @@ Diagram berikut menggambarkan alur perjalanan sebuah permintaan (request) dari k
    Di layer service, seluruh logika bisnis dijalankan. Service akan mengoordinasikan antara controller dan repository, mengolah data, serta memutuskan tindakan yang perlu dilakukan.
 
 6. **Repositories**  
-   Service akan berinteraksi dengan repository untuk mengambil atau menyimpan data. Repository bertanggung jawab mengelola komunikasi dengan database melalui Prisma.
+   Service akan berinteraksi dengan repository untuk mengambil atau menyimpan data. Repository bertanggung jawab mengelola komunikasi dengan database melalui Drizzle ORM.
 
-7. **Prisma ORM**  
-   Prisma bertindak sebagai jembatan antara repository dan database PostgreSQL. Prisma juga mengatur operasi database seperti kueri, update, delete, dan lainnya.
+7. **Drizzle ORM**  
+   Drizzle bertindak sebagai jembatan antara repository dan database PostgreSQL. Drizzle juga mengatur operasi database seperti kueri, update, delete, dan lainnya.
 
 8. **Database & External Services**  
    Pada akhirnya, data yang diperlukan diambil dari PostgreSQL Database, atau bisa juga berinteraksi dengan layanan eksternal seperti:
@@ -163,7 +163,7 @@ Mau sekalian aku bantu buatin juga versi visual lebih rapi dalam format PNG atau
 **Repositories**
 
 - Menjadi lapisan abstraksi untuk operasi database.
-- Berinteraksi langsung dengan Prisma Client untuk query.
+- Berinteraksi langsung dengan Drizzle ORM untuk query.
 - Membantu menjaga codebase tetap modular dan mudah diganti atau dimock pada saat pengujian.
 
 **Middlewares**
@@ -188,7 +188,7 @@ Mau sekalian aku bantu buatin juga versi visual lebih rapi dalam format PNG atau
 3. Controller menerima permintaan dan memvalidasi data.
 4. Controller memanggil metode service terkait.
 5. Service menjalankan logika bisnis dan memanfaatkan repository untuk interaksi database.
-6. Repository menjalankan operasi database melalui Prisma Client.
+6. Repository menjalankan operasi database melalui Drizzle ORM.
 7. Data hasil operasi dikembalikan ke service, lalu diteruskan ke controller.
 8. Controller memformat hasil dan mengembalikannya sebagai respons HTTP ke klien.
 
@@ -256,14 +256,17 @@ yarn install
 3. Persiapkan database:
 
     ```bash
-    # Generate Prisma client
-    npm run prisma:generate
+    # Generate migrasi Drizzle berdasarkan skema
+    npm run drizzle:generate
 
-    # Jalankan migrasi database
-    npm run prisma:migrate
+    # Terapkan perubahan skema langsung ke database (hanya untuk pengembangan)
+    npm run drizzle:push
 
-    # (Opsional) Seed database dengan data awal
-    npm run prisma:seed
+    # Atau, terapkan migrasi (direkomendasikan untuk produksi)
+    npm run drizzle:migrate
+
+    # Seed database dengan data awal
+    npm run drizzle:seed
     ```
 
 ### Menjalankan Server
@@ -299,6 +302,7 @@ docker-compose up --build
 | `HOST`           | Host server                           | 0.0.0.0     |
 | `NODE_ENV`       | Environment aplikasi                  | development |
 | `DATABASE_URL`   | Koneksi database PostgreSQL           | -           |
+| `DATABASE_SSL`   | Mengaktifkan koneksi SSL ke database  | false       |
 | `JWT_SECRET`     | Kunci rahasia JWT                     | -           |
 | `JWT_EXPIRES_IN` | Durasi kedaluwarsa JWT                | 1d          |
 | `ENABLE_SWAGGER` | Aktifkan dokumentasi Swagger          | true        |
@@ -315,85 +319,4 @@ docker-compose up --build
 
 Untuk melihat dokumentasi API secara interaktif:
 
-1. Pastikan server sudah berjalan dan `ENABLE_SWAGGER=true` di file `.env`.
-2. Akses halaman Swagger UI melalui `http://localhost:3001/documentation`.
-3. Di Swagger UI, Anda dapat mengeksplorasi endpoint API, melihat parameter permintaan, serta contoh respons.
-
-### Autentikasi
-
-Proyek ini menggunakan **JWT (JSON Web Token)** untuk proses autentikasi.
-
-Langkah-langkah penggunaan:
-
-1. Lakukan login atau registrasi melalui endpoint yang disediakan untuk mendapatkan token JWT.
-2. Gunakan token tersebut di header setiap permintaan:
-
-    ```
-    Authorization: Bearer your-jwt-token
-    ```
-
-3. Untuk mempermudah di Swagger UI:
-    - Klik tombol "Authorize"
-    - Masukkan `Bearer your-jwt-token`
-    - Klik "Authorize" untuk menerapkan token ke seluruh permintaan berikutnya.
-
----
-
-## Pengujian
-
-Proyek ini mendukung pengujian unit maupun integrasi.
-
-Perintah yang tersedia:
-
-```bash
-# Menjalankan seluruh pengujian
-npm test
-
-# Menjalankan pengujian dan melihat laporan cakupan kode
-npm run test:coverage
-
-# Menjalankan pengujian untuk file tertentu
-npm test -- src/tests/path/to/your/test.test.ts
-```
-
----
-
-## Deployment
-
-### Deployment Menggunakan Docker
-
-Cara yang direkomendasikan untuk produksi adalah menggunakan Docker:
-
-```bash
-# Dari root proyek
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-Perintah tersebut akan membangun seluruh container backend, frontend, database, serta layanan file storage jika diperlukan, dalam mode detached (latar belakang).
-
-### Deployment Manual
-
-Jika tidak menggunakan Docker, Anda dapat menjalankan server secara manual:
-
-1. Build proyek:
-
-    ```bash
-    npm run build
-    ```
-
-2. Pastikan variabel lingkungan sudah disesuaikan untuk produksi.
-3. Jalankan server:
-
-    ```bash
-    npm start
-    ```
-
----
-
-**Catatan**:  
-Dalam produksi, disarankan menggunakan manajer proses seperti **PM2** untuk menjaga server tetap berjalan meskipun terjadi crash atau restart server.
-
----
-
-Kalau Anda mau, saya juga bisa bantu buatkan **contoh file `docker-compose.yml`** produksi yang ideal, atau **setup GitHub Actions** untuk CI/CD langsung ke VPS Anda.  
-Apakah Anda ingin saya lanjutkan?
+1. Pastikan server sudah berjalan dan `

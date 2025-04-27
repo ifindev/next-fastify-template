@@ -57,7 +57,20 @@ This will start:
 ```bash
 cd server
 npm install
-npm run prisma:generate
+
+# Generate migrations
+npm run drizzle:generate
+
+# Apply migrations
+npm run drizzle:migrate
+
+# Seed the database
+npm run drizzle:seed
+
+# View data with Drizzle Studio
+npm run drizzle:studio
+
+# Run application
 npm run dev
 ```
 
@@ -137,7 +150,6 @@ npm test
 │   │   ├── config/         # Configuration
 │   │   ├── utils/          # Utility functions
 │   │   └── tests/          # Tests
-│   ├── prisma/             # Database schema and migrations
 │   └── ...
 └── docker-compose.yml      # Docker configuration
 ```

@@ -1,71 +1,53 @@
-import { PrismaClient } from '@prisma/client';
+import { eq } from 'drizzle-orm';
 
-export class FileRepository {
-    constructor(private prisma: PrismaClient) {}
+import { db } from '../config/drizzle.config';
+import { File, files, NewFile } from '../schemas';
+import { IFileRepository } from './interfaces';
 
+export class FileRepository implements IFileRepository {
     /**
-     * Create a new file record
+     * Create a new file
      */
-    async createFile(fileData: {
-        filename: string;
-        path: string;
-        mimetype: string;
-        size: number;
-        userId: string;
-    }) {
-        return this.prisma.file.create({
-            data: fileData,
-        });
+    async createFile(fileData: NewFile): Promise<File> {
+        const result = await db.insert(files).values(fileData).returning();
+        return result[0];
     }
 
     /**
-     * Get file by ID
+     * Find file by ID
      */
-    async getFileById(id: string) {
-        return this.prisma.file.findUnique({
-            where: { id },
-            include: { user: true },
-        });
+    async findById(id: string): Promise<File | null> {
+        const result = await db.select().from(files).where(eq(files.id, id));
+        return result[0] || null;
     }
 
     /**
-     * Get files by user ID
+     * Find files by user ID
      */
-    async getFilesByUserId(userId: string) {
-        return this.prisma.file.findMany({
-            where: { userId },
-            orderBy: {
-                uploadedAt: 'desc',
-            },
-        });
+    async findByUserId(userId: string): Promise<File[]> {
+        return db.select().from(files).where(eq(files.userId, userId));
+    }
+
+    /**
+     * Update file
+     */
+    async updateFile(id: string, data: Partial<NewFile>): Promise<File> {
+        const result = await db.update(files).set(data).where(eq(files.id, id)).returning();
+        return result[0];
+    }
+
+    /**
+     * Delete file
+     */
+    async deleteFile(id: string): Promise<File> {
+        const result = await db.delete(files).where(eq(files.id, id)).returning();
+        return result[0];
     }
 
     /**
      * Get all files
      */
-    async getAllFiles() {
-        return this.prisma.file.findMany({
-            orderBy: {
-                uploadedAt: 'desc',
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-            },
-        });
-    }
-
-    /**
-     * Delete file by ID
-     */
-    async deleteFile(id: string) {
-        return this.prisma.file.delete({
-            where: { id },
-        });
+    async getAllFiles(): Promise<File[]> {
+        return db.select().from(files);
     }
 }

@@ -10,13 +10,6 @@ npm uninstall bcrypt
 # install the bcrypt modules for the machine
 npm install bcrypt
 
-# Generate Prisma client at runtime
-echo "Generating Prisma client..."
-npx prisma generate
-
-# Deploy Prisma migrations
-echo "Deploying Prisma migrations..."
-npm run db:deploy
 
 # Start the application
 echo "Starting application..."

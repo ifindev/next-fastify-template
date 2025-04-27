@@ -4,8 +4,12 @@ import multipart from '@fastify/multipart';
 import swagger from '@fastify/swagger';
 import Fastify, { FastifyInstance } from 'fastify';
 
+import { db } from './config/drizzle.config';
 import { errorHandler } from './middlewares/error-handler.middleware';
 import { registerRoutes } from './routes';
+
+// Export db for use in other parts of the application
+export { db };
 
 export async function buildServer(): Promise<FastifyInstance> {
     const server = Fastify({
@@ -43,6 +47,9 @@ export async function buildServer(): Promise<FastifyInstance> {
             produces: ['application/json'],
         },
     });
+
+    // Add Drizzle instance to Fastify
+    server.decorate('db', db);
 
     // Register global error handler
     server.setErrorHandler(errorHandler);

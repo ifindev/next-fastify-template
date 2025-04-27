@@ -1,7 +1,5 @@
 .env
 node_modules
-generated/
-prisma/
 .gitignore
 .prettierrc
 .prettierignore
