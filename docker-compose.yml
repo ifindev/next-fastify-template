@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: next-app:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://server:3001 # Use service name instead of localhost
+    depends_on:
+      server:
+        condition: service_healthy
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: fastify-app:latest
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/librarydb?schema=public
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production} # Use env var with fallback
+      - JWT_EXPIRES_IN=1d
+      - S3_ENDPOINT=http://minio:9000
+      - S3_REGION=us-east-1
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY:-minioadmin} # Use env var
+      - S3_SECRET_KEY=${S3_SECRET_KEY:-minioadmin} # Use env var
+      - S3_BUCKET_NAME=uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"] # Add healthcheck endpoint
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres} # Use env var
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres} # Use env var
+      - POSTGRES_DB=librarydb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  minio:
+    image: minio/minio:RELEASE.2023-09-04T19-57-37Z # Pin to specific version
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin} # Use env var
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin} # Use env var
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin};
+      /usr/bin/mc mb myminio/uploads --ignore-existing;
+      /usr/bin/mc policy set download myminio/uploads; # Use 'download' for read-only
+      exit 0;
+      "
+    restart: no # Run once
+
+volumes:
+  postgres-data:
+  minio-data:

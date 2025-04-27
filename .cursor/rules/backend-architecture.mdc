@@ -1,0 +1,111 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Standard for Backend Architecture
+
+To ensure a maintainable and scalable application, the layered architecture for the Fastify-based app will follow these guidelines for interactions between layers and their responsibilities. Each layer has specific duties and restrictions to maintain separation of concerns.
+
+## 1. **App Entry Point**
+
+- **Responsibilities**:
+    - Initialize the Fastify server, plugins, and configurations (e.g., CORS, authentication, ORM).
+    - Register routes for all modules.
+    - Set up global middleware (e.g., request logging, error handling).
+- **Interactions**:
+    - Interacts with **Routes** by registering them.
+    - Does not interact with **Controllers**, **Services**, **Repositories**, or the database directly.
+- **Restrictions**:
+    - Should not contain business logic, request validation, or database queries.
+    - Should not handle HTTP request/response logic beyond global middleware.
+
+## 2. **Routes**
+
+- **Responsibilities**:
+    - Define HTTP endpoints (e.g., GET, POST) for each module (e.g., books, users).
+    - Map endpoints to specific **Controller** methods.
+    - Specify request schemas for validation (using Fastify’s schema validation).
+- **Interactions**:
+    - Calls **Controller** methods to handle requests.
+    - Does not interact with **Services**, **Repositories**, or the database.
+- **Restrictions**:
+    - Should not contain business logic or database operations.
+    - Should not perform request validation beyond schema definitions (leave that to Controllers).
+
+## 3. **Controllers**
+
+- **Responsibilities**:
+    - Handle HTTP requests and responses.
+    - Validate request bodies, query parameters, and headers (using Fastify schemas or custom validation).
+    - Transform data (e.g., DTOs) before passing to **Services**.
+    - Return HTTP responses (status codes, payloads).
+- **Interactions**:
+    - Calls **Service** methods to execute business logic.
+    - Does not interact with **Repositories** or the database directly.
+- **Restrictions**:
+    - Should not contain business logic (e.g., calculations, rules).
+    - Should not perform database operations or query the ORM directly.
+
+## 4. **Service Layer**
+
+- **Responsibilities**:
+    - Implement business logic (e.g., book borrowing rules, user permission checks).
+    - Orchestrate interactions between multiple **Repositories** or external services (e.g., S3 uploads).
+    - Handle errors related to business rules.
+- **Interactions**:
+    - Calls **Repository** methods for data access.
+    - Interacts with external services (e.g., S3 for file uploads).
+    - Does not interact with the database or ORM directly.
+- **Restrictions**:
+    - Should not handle HTTP request/response details (e.g., status codes, headers).
+    - Should not perform direct database queries or use the ORM.
+
+## 5. **Repository Layer**
+
+- **Responsibilities**:
+    - Encapsulate database interactions (CRUD operations) using the ORM.
+    - Map database results to domain models or DTOs.
+    - Handle database-specific errors (e.g., unique constraint violations).
+- **Interactions**:
+    - Interacts with the **ORM** and database.
+    - Does not interact with **Controllers**, **Routes**, or external services (e.g., S3).
+- **Restrictions**:
+    - Should not contain business logic (e.g., validation rules, calculations).
+    - Should not handle HTTP request/response logic or authentication.
+
+## 6. **ORM**
+
+- **Responsibilities**:
+    - Provide a structured interface for database operations (e.g., queries, migrations).
+    - Map database tables to application models.
+- **Interactions**:
+    - Used exclusively by **Repositories**.
+    - Does not interact with **Controllers**, **Services**, or **Routes**.
+- **Restrictions**:
+    - Should not be used outside the **Repository** layer.
+
+## 7. **Authentication & Authorization**
+
+- **Responsibilities**:
+    - Authenticate requests (e.g., validate JWT tokens).
+    - Authorize actions based on user roles/permissions.
+- **Interactions**:
+    - Integrated at the **Route** or **Controller** level via Fastify plugins/hooks.
+    - May interact with **Services** for user role/permission checks.
+    - May use **Repositories** (via **Services**) to fetch user data.
+- **Restrictions**:
+    - Should not be handled in **Repositories** or directly in the ORM.
+    - Should not contain business logic beyond authentication/authorization.
+
+## 8. **File Upload Service**
+
+- **Responsibilities**:
+    - Handle file uploads to an S3-compatible storage (e.g., MinIO).
+    - Validate file types, sizes, and metadata.
+- **Interactions**:
+    - Called by **Controllers** or **Services** as needed.
+    - Interacts with external S3 storage (not the database).
+- **Restrictions**:
+    - Should not interact with the database or **Repositories**.
+    - Should not handle HTTP request/response logic directly.

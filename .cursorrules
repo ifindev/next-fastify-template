@@ -1,0 +1,2 @@
+- For folder and file naming, always follow rules from `./cursor/rules/file-folder-naming.mdc`
+- When working with backend-related tasks, always follow the rules for backend architecture in `.cursor/rules/backend-architecture.mdc`

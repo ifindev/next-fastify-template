@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# File and Folder Naming Guide
+
+- Always use kebab-case naming for all file and folder
+- Use plurals for folder naming. 
+```
+// Correct folder naming
+- controllers
+- services
+- utils
+
+// Incorrect folder naming
+- controller
+- service
+```
+- Use `.folder-name` extension type for file naming
+```
+// Example correct folder naming
+- auth.service.ts
+- auth.middleware.ts
+- test.util.ts
+
+// Example inccorect folder naming
+- auth.ts => doesn't convey what file is this
+- auth.services.ts => don't use plural in extension
+- authService.ts => DON'T USE camelCase!
+```

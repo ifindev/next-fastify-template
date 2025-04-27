@@ -1,0 +1,10 @@
+.env
+node_modules
+generated/
+prisma/
+.gitignore
+.prettierrc
+.prettierignore
+.env.local
+.env.development.local
+.env.test.local

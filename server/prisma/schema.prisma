@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../generated/prisma_client"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  files     File[]
+}
+
+model File {
+  id          String   @id @default(uuid())
+  filename    String
+  path        String
+  mimetype    String
+  size        Int
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  uploadedAt  DateTime @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}
