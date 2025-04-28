@@ -19,5 +19,5 @@ declare module 'fastify' {
         };
     }
 
-    // RateLimit is already defined in the plugin's declaration, no need to redefine it here
+    // RateLimit is already defined in the @fastify/rate-limit v8.x package
 }

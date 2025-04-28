@@ -22,7 +22,7 @@ export const rateLimit = fp(async (fastify, options: RateLimitOptions = {}) => {
             return {
                 statusCode: 429,
                 error: 'Too Many Requests',
-                message: 'Rate limit exceeded, please try again later',
+                message: `Rate limit exceeded, please try again in ${context.after}`,
             };
         },
 
