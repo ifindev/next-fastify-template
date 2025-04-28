@@ -120,7 +120,7 @@ export class AuthService {
      */
     async refreshAccessToken(
         refreshToken: string,
-    ): Promise<{ user: Omit<User, 'password'>; token: string } | null> {
+    ): Promise<{ user: Omit<User, 'password'>; token: string; refreshToken: string } | null> {
         // Find the refresh token
         const tokenDoc = await this.refreshTokenRepository.findByToken(refreshToken);
 
@@ -145,8 +145,18 @@ export class AuthService {
         // Remove password from returned object
         const { password: _, ...userWithoutPassword } = user;
 
+        // Implement token rotation - invalidate old token
+        await this.refreshTokenRepository.deleteToken(tokenDoc.id);
+
+        // Generate new refresh token
+        const newRefreshToken = await this.generateRefreshToken(user.id);
+
         // Token will be generated at the controller level
-        return { user: userWithoutPassword, token: '' };
+        return {
+            user: userWithoutPassword,
+            token: '',
+            refreshToken: newRefreshToken.token,
+        };
     }
 
     /**

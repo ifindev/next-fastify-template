@@ -1,13 +1,20 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1745769753924,
-      "tag": "0000_colorful_whistler",
-      "breakpoints": true
-    }
-  ]
+    "version": "5",
+    "dialect": "pg",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "5",
+            "when": "1720030000000",
+            "tag": "0000_initial",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "5",
+            "when": "1720030100000",
+            "tag": "0001_refresh_tokens",
+            "breakpoints": true
+        }
+    ]
 }

@@ -184,6 +184,7 @@ export const refreshTokenSchema = {
             properties: {
                 message: { type: 'string' },
                 token: { type: 'string' },
+                refreshToken: { type: 'string' },
                 user: {
                     type: 'object',
                     properties: {

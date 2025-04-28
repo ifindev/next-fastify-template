@@ -160,6 +160,7 @@ export class AuthController {
                 message: 'Token refreshed successfully',
                 user: result.user,
                 token,
+                refreshToken: result.refreshToken,
             });
         } catch (error) {
             request.log.error(error);
