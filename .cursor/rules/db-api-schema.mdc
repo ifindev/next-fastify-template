@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# DB and API Schemas
+
+- When implementing new API endpoint, always define the API schema first and setup the correct swagger to test the API!
+- When adding a new data to database, define the database schema first and the appropriate migration file. 
+- DB and API schemas should be defined under the `src/schemas/` directory
+- DB schema should go into `src/schemas/db/`
+- API schema should be defined under the `src/schemas/api/`
