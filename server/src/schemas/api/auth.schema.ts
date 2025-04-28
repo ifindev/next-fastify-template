@@ -36,6 +36,7 @@ export const loginSchema = {
                     },
                 },
                 token: { type: 'string' },
+                refreshToken: { type: 'string' },
             },
         },
         401: {
@@ -147,6 +148,57 @@ export const meSchema = {
         },
         404: {
             description: 'User not found',
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+            },
+        },
+        500: {
+            description: 'Server error',
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+            },
+        },
+    },
+};
+
+export const refreshTokenSchema = {
+    description: 'Refresh access token',
+    tags: ['auth'],
+    summary: 'Get a new access token using a refresh token',
+    body: {
+        type: 'object',
+        required: ['refreshToken'],
+        properties: {
+            refreshToken: {
+                type: 'string',
+                description: 'Refresh token obtained during login',
+            },
+        },
+    },
+    response: {
+        200: {
+            description: 'Successful token refresh',
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+                token: { type: 'string' },
+                user: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' },
+                        email: { type: 'string' },
+                        name: { type: 'string' },
+                        role: { type: 'string' },
+                        createdAt: { type: 'string' },
+                        updatedAt: { type: 'string' },
+                    },
+                },
+            },
+        },
+        401: {
+            description: 'Invalid or expired refresh token',
             type: 'object',
             properties: {
                 message: { type: 'string' },
