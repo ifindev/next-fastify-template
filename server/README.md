@@ -21,6 +21,7 @@ For docummentation in Indonesia language, go to the [README-ID.md](./README-ID.m
 - [API Documentation](#api-documentation)
     - [Swagger UI](#swagger-ui)
     - [Authentication](#authentication)
+- [Logging](#logging)
 - [Testing](#testing)
 - [Deployment](#deployment)
 
@@ -361,6 +362,32 @@ The API uses JWT for authentication:
     - Click the "Authorize" button
     - Enter `Bearer your-jwt-token` in the value field
     - Click "Authorize" to apply the token to all requests
+
+## Logging
+
+The server uses a comprehensive logging system based on Pino for detailed request/response logging, error tracking, and database operation monitoring.
+
+Key features:
+
+- Colorized logging in development mode
+- JSON logging in production for better log aggregation
+- Context-specific loggers for different parts of the application
+- Automatic HTTP request/response logging with status code-based coloring
+- Error stack traces and detailed error information
+- Database operation logging
+
+For more details, see the [Logging Documentation](./LOGGING.md).
+
+### Configuring Log Level
+
+You can control the verbosity of logs with the `LOG_LEVEL` environment variable:
+
+```bash
+# In .env file
+LOG_LEVEL=debug  # Options: trace, debug, info, warn, error, fatal
+```
+
+Default log level is `info` if not specified.
 
 ## Testing
 
