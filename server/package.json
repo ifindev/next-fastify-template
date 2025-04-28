@@ -26,6 +26,7 @@
         "@fastify/jwt": "^7.0.0",
         "@fastify/multipart": "^8.0.0",
         "@fastify/swagger": "^8.0.0",
+        "@fastify/swagger-ui": "^1.10.1",
         "@types/pg": "^8.11.14",
         "bcrypt": "^5.1.1",
         "dotenv": "^16.5.0",
@@ -37,7 +38,7 @@
     "devDependencies": {
         "@types/bcrypt": "^5.0.0",
         "@types/jest": "^29.5.14",
-        "@types/node": "^20.0.0",
+        "@types/node": "^20.17.31",
         "@types/supertest": "^2.0.0",
         "drizzle-kit": "^0.31.0",
         "eslint": "^9.25.1",

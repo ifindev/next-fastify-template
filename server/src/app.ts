@@ -2,8 +2,10 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import multipart from '@fastify/multipart';
 import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import Fastify, { FastifyInstance } from 'fastify';
 
+import { drizzlePlugin } from './config/database';
 import { db } from './config/drizzle.config';
 import { errorHandler } from './middlewares/error-handler.middleware';
 import { registerRoutes } from './routes';
@@ -34,6 +36,7 @@ export async function buildServer(): Promise<FastifyInstance> {
         },
     });
 
+    // Register Swagger for OpenAPI specification
     await server.register(swagger, {
         swagger: {
             info: {
@@ -48,8 +51,17 @@ export async function buildServer(): Promise<FastifyInstance> {
         },
     });
 
-    // Add Drizzle instance to Fastify
-    server.decorate('db', db);
+    // Register Swagger UI
+    await server.register(swaggerUi, {
+        routePrefix: '/documentation',
+        uiConfig: {
+            docExpansion: 'list',
+            deepLinking: false,
+        },
+    });
+
+    // Register drizzle plugin
+    await server.register(drizzlePlugin);
 
     // Register global error handler
     server.setErrorHandler(errorHandler);
