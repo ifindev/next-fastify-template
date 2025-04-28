@@ -5,7 +5,7 @@ import { hash } from 'bcrypt';
 import { eq } from 'drizzle-orm';
 
 import { db, pool } from '../src/config/drizzle.config';
-import { users } from '../src/schemas';
+import { users } from '../src/schemas/db/users.schema';
 
 async function seed() {
     console.log('Seeding database...');
