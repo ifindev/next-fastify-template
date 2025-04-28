@@ -18,13 +18,43 @@ export async function authRoutes(fastify: FastifyInstance) {
     // Auth routes
     fastify.post(
         '/register',
-        { schema: registerSchema },
+        {
+            schema: registerSchema,
+            config: {
+                rateLimit: {
+                    max: 5,
+                    timeWindow: '1 hour',
+                },
+            },
+        },
         authController.register.bind(authController),
     );
-    fastify.post('/login', { schema: loginSchema }, authController.login.bind(authController));
+
+    fastify.post(
+        '/login',
+        {
+            schema: loginSchema,
+            config: {
+                rateLimit: {
+                    max: 10,
+                    timeWindow: '15 minutes',
+                },
+            },
+        },
+        authController.login.bind(authController),
+    );
+
     fastify.post(
         '/refresh-token',
-        { schema: refreshTokenSchema },
+        {
+            schema: refreshTokenSchema,
+            config: {
+                rateLimit: {
+                    max: 20,
+                    timeWindow: '1 hour',
+                },
+            },
+        },
         authController.refreshToken.bind(authController),
     );
 
@@ -39,6 +69,12 @@ export async function authRoutes(fastify: FastifyInstance) {
                 } catch (err) {
                     return reply.code(401).send({ message: 'Unauthorized' });
                 }
+            },
+            config: {
+                rateLimit: {
+                    max: 50,
+                    timeWindow: '1 minute',
+                },
             },
         },
         authController.me.bind(authController),

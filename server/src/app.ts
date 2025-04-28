@@ -8,6 +8,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import { drizzlePlugin } from './config/database';
 import { db } from './config/drizzle.config';
 import { errorHandler } from './middlewares/error-handler.middleware';
+import { rateLimit } from './middlewares/rate-limit.middleware';
 import loggerPlugin from './plugins/logger.plugin';
 import { registerRoutes } from './routes';
 import { createLogger, log } from './utils/logger.util';
@@ -44,6 +45,13 @@ export async function buildServer(): Promise<FastifyInstance> {
         allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     });
     log.info('CORS plugin registered');
+
+    // Register rate limit plugin
+    await server.register(rateLimit, {
+        max: parseInt(process.env.RATE_LIMIT_MAX || '100'),
+        timeWindow: process.env.RATE_LIMIT_WINDOW || '1 minute',
+    });
+    log.info('Rate limit plugin registered');
 
     await server.register(jwt, {
         secret: process.env.JWT_SECRET || 'default-secret',
