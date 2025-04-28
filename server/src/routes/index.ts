@@ -1,13 +1,11 @@
 import { FastifyInstance } from 'fastify';
 
-import { drizzlePlugin } from '../config/database';
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { authRoutes } from './auth.route';
 import { fileRoutes } from './file.route';
 
 export async function registerRoutes(server: FastifyInstance) {
-    // Register plugins
-    await server.register(drizzlePlugin);
+    // Register authentication middleware
     await server.register(authenticate);
 
     // Register routes under the /api prefix

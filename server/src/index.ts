@@ -1,13 +1,16 @@
+// Load environment variables first
+import 'dotenv/config';
+
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
+
 import { buildServer } from './app';
+import { db } from './config/drizzle.config';
 
 async function start() {
     // Run migrations in development mode
     if (process.env.NODE_ENV !== 'production') {
         try {
-            // Import and run migrations without closing the pool
-            const { migrate } = await import('drizzle-orm/node-postgres/migrator');
-            const { db } = await import('./config/drizzle.config');
-
+            // Run migrations
             await migrate(db, { migrationsFolder: './drizzle' });
             console.log('Migrations applied successfully');
         } catch (err) {
@@ -20,7 +23,9 @@ async function start() {
 
     try {
         await server.listen({ port: 3001, host: '0.0.0.0' });
-        console.log(`Server listening on ${server.server.address().port}`);
+        const address = server.server.address();
+        const port = typeof address === 'string' ? address : address?.port;
+        console.log(`Server listening on ${port}`);
     } catch (err) {
         server.log.error(err);
         process.exit(1);
