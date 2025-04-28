@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Markdown Docs
+
+- When implementing new middleware, tools, etc, create documentation under `[app-name]/docs` file. For example, for the server code, add docs on `server/docs/`. For client, add under the `client/docs/`.
+- Use lowercase for file naming. Follow rules in `.cursor/rules/file-folder-naming.mdc`
+- Link the new docs to the main readme.md file in the `[app-name]/README.md`. 
