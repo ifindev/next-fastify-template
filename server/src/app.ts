@@ -11,10 +11,7 @@ import { errorHandler } from './middlewares/error-handler.middleware';
 import { rateLimit } from './middlewares/rate-limit.middleware';
 import loggerPlugin from './plugins/logger.plugin';
 import { registerRoutes } from './routes';
-import { createLogger, log } from './utils/logger.util';
-
-// Create application logger
-const logger = createLogger('server');
+import { log } from './utils/logger.util';
 
 // Export db for use in other parts of the application
 export { db };
