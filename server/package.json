@@ -25,6 +25,7 @@
         "@fastify/cors": "^8.0.0",
         "@fastify/jwt": "^7.0.0",
         "@fastify/multipart": "^8.0.0",
+        "@fastify/rate-limit": "^10.2.2",
         "@fastify/swagger": "^8.0.0",
         "@fastify/swagger-ui": "^1.10.1",
         "@types/pg": "^8.11.14",
