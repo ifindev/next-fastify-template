@@ -2,7 +2,7 @@ import { MultipartFile } from '@fastify/multipart';
 
 import { fileRepository } from '../repositories';
 import { IFileRepository } from '../repositories/interfaces';
-import { File } from '../schemas';
+import { File } from '../schemas/db';
 import { FileUploadService } from './file-upload.service';
 
 export class FileService {

@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 
 import { db } from '../config/drizzle.config';
-import { NewUser, User, users } from '../schemas';
+import { NewUser, User, users } from '../schemas/db';
 import { IUserRepository } from './interfaces';
 
 export class UserRepository implements IUserRepository {

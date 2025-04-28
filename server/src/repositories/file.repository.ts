@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 
 import { db } from '../config/drizzle.config';
-import { File, files, NewFile } from '../schemas';
+import { File, files, NewFile } from '../schemas/db';
 import { IFileRepository } from './interfaces';
 
 export class FileRepository implements IFileRepository {

@@ -1,4 +1,4 @@
-import { NewUser, User } from '../../schemas/users.schema';
+import { NewUser, User } from '../../schemas/db/users.schema';
 
 export interface IUserRepository {
     createUser(userData: NewUser): Promise<User>;

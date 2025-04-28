@@ -26,9 +26,22 @@ export async function buildServer(): Promise<FastifyInstance> {
     // Register our custom logger plugin
     await server.register(loggerPlugin);
 
+    // Add content-type parser
+    server.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
+        try {
+            const json = body.length > 0 ? JSON.parse(body as string) : {};
+            done(null, json);
+        } catch (err) {
+            done(err as Error, undefined);
+        }
+    });
+    log.info('Content-type parser registered');
+
     // Register plugins
     await server.register(cors, {
-        origin: true,
+        origin: '*',
+        methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     });
     log.info('CORS plugin registered');
 
@@ -56,9 +69,16 @@ export async function buildServer(): Promise<FastifyInstance> {
                 version: '1.0.0',
             },
             host: 'localhost:3001',
-            schemes: ['http'],
+            schemes: ['http', 'https'],
             consumes: ['application/json'],
             produces: ['application/json'],
+            securityDefinitions: {
+                bearerAuth: {
+                    type: 'apiKey',
+                    name: 'Authorization',
+                    in: 'header',
+                },
+            },
         },
     });
     log.info('Swagger plugin registered');
@@ -69,7 +89,11 @@ export async function buildServer(): Promise<FastifyInstance> {
         uiConfig: {
             docExpansion: 'list',
             deepLinking: false,
+            tryItOutEnabled: true,
+            persistAuthorization: true,
         },
+        staticCSP: false,
+        transformSpecificationClone: true,
     });
     log.info('Swagger UI plugin registered');
 

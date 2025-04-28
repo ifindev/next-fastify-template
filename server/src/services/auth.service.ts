@@ -2,7 +2,7 @@ import { compare, hash } from 'bcrypt';
 
 import { userRepository } from '../repositories';
 import { IUserRepository } from '../repositories/interfaces';
-import { User } from '../schemas';
+import { User } from '../schemas/db';
 
 export class AuthService {
     private userRepository: IUserRepository;

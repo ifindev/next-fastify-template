@@ -1,4 +1,4 @@
-import { File, NewFile } from '../../schemas/files.schema';
+import { File, NewFile } from '../../schemas/db/files.schema';
 
 export interface IFileRepository {
     createFile(fileData: NewFile): Promise<File>;
